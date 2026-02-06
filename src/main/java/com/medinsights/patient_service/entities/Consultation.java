@@ -49,6 +49,9 @@ public class Consultation {
     private String symptoms;
 
     @Column(length = 1000)
+    private String physicalExamination; // examen_clinique from chatbot
+
+    @Column(length = 1000)
     private String diagnosis;
 
     @Column(length = 1000)

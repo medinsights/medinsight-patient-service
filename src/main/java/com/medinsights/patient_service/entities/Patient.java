@@ -17,6 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Patient entity representing patient demographics and basic information
+ * Supports US-1.1, US-1.2: Unified Patient Management
+ */
+
 @Entity
 @Table(name = "patients", indexes = {
         @Index(name = "idx_patient_created_by", columnList = "createdBy"),
@@ -80,6 +85,9 @@ public class Patient {
     private String bloodGroup;
 
     @Column(length = 500)
+    private String familyHistory; // antecedents_familiaux from chatbot
+
+    @Column(length = 500)
     private String allergies;
 
     @Column(length = 500)
@@ -94,6 +102,10 @@ public class Patient {
 
     @Column(length = 1000)
     private String notes;
+
+    @Size(max = 200, message = "Attending physician name cannot exceed 200 characters")
+    @Column(length = 200)
+    private String attendingPhysician; // medecin_traitant from chatbot
 
     @Column(nullable = false)
     private Boolean active = true;
@@ -121,5 +133,17 @@ public class Patient {
     @JsonIgnore
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Consultation> consultations = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Treatment> treatments = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VitalSigns> vitalSigns = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MedicalAnalysis> medicalAnalyses = new ArrayList<>();
 }
 

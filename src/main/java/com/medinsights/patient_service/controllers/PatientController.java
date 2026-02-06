@@ -1,7 +1,7 @@
-package com.medinsights.patient_service.web;
+package com.medinsights.patient_service.controllers;
 
-import com.medinsights.patient_service.dto.PatientCreateRequest;
-import com.medinsights.patient_service.dto.PatientUpdateRequest;
+import com.medinsights.patient_service.dto.patient.PatientCreateRequest;
+import com.medinsights.patient_service.dto.patient.PatientUpdateRequest;
 import com.medinsights.patient_service.entities.Patient;
 import com.medinsights.patient_service.services.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
