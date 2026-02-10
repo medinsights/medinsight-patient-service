@@ -1,0 +1,89 @@
+# ============================================================================
+# CI/CD TEMPORARILY DISABLED FOR MANUAL DEPLOYMENT
+# Collaborator will configure Terraform/K8s/ArgoCD before enabling
+# ============================================================================
+# name: CI - Patient Service
+
+# on:
+#   push:
+#     branches: [main, develop]
+#   pull_request:
+#     branches: [main]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: medinsights/patient-service
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  # ===========================================================================
+  # JOB 1: Test (Maven)
+  # ===========================================================================
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Build and test with Maven
+        run: |
+          chmod +x ./mvnw
+          ./mvnw verify -B
+
+      - name: Test results
+        if: always()
+        run: |
+          echo "### 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "Maven build and tests completed" >> $GITHUB_STEP_SUMMARY
+
+  # ===========================================================================
+  # JOB 2: Build & Push Docker Image to ECR
+  # ===========================================================================
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          echo "Building Docker image..."
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          
+          echo "Pushing to ECR..."
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          
+          echo "image_uri=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Summary
+        run: |
+          echo "### ✅ Patient Service - Image Built & Pushed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** \`$ECR_REPOSITORY\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag:** \`$IMAGE_TAG\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Image URI:** \`${{ steps.build-image.outputs.image_uri }}\`" >> $GITHUB_STEP_SUMMARY

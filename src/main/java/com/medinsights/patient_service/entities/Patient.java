@@ -93,6 +93,13 @@ public class Patient {
     @Column(length = 500)
     private String chronicDiseases;
 
+    @Column(length = 1000)
+    private String mainPathologies; // pathologies_principales - primary medical conditions
+
+    @Size(max = 20, message = "Status cannot exceed 20 characters")
+    @Column(length = 20)
+    private String status = "active"; // active, inactive - patient status
+
     @Column(length = 100)
     private String emergencyContactName;
 
@@ -145,5 +152,9 @@ public class Patient {
     @JsonIgnore
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MedicalAnalysis> medicalAnalyses = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MedicalAlert> medicalAlerts = new ArrayList<>();
 }
 

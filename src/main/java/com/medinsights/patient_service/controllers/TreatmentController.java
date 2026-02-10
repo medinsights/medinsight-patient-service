@@ -61,7 +61,7 @@ public class TreatmentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping("/{treatmentId}")
+    @PutMapping({"/{treatmentId}", "/traitements/{treatmentId}"})
     @Operation(
             summary = "Update a treatment",
             description = "Update an existing treatment record. Doctor only."
@@ -108,7 +108,7 @@ public class TreatmentController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/patients/{patientId}")
+    @GetMapping({"/patients/{patientId}", "/patients/{patientId}/traitements"})
     @Operation(
             summary = "Get all treatments for a patient",
             description = "Retrieve all treatment records for a specific patient, ordered by start date (most recent first)"

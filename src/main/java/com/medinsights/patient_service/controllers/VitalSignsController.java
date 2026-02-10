@@ -35,7 +35,7 @@ public class VitalSignsController {
 
     private final VitalSignsService vitalSignsService;
 
-    @PostMapping("/patients/{patientId}")
+    @PostMapping({"/patients/{patientId}", "/patients/{patientId}/constantes"})
     @Operation(
             summary = "Record new vital signs",
             description = "Record vital signs measurements for a patient. BMI is automatically calculated."
@@ -82,7 +82,7 @@ public class VitalSignsController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/patients/{patientId}")
+    @GetMapping({"/patients/{patientId}", "/patients/{patientId}/constantes"})
     @Operation(
             summary = "Get all vital signs for a patient",
             description = "Retrieve all vital signs records for a specific patient, ordered by measurement date (most recent first)"

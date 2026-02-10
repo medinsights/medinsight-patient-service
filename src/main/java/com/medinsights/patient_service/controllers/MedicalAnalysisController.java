@@ -108,7 +108,7 @@ public class MedicalAnalysisController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/patients/{patientId}")
+    @GetMapping({"/patients/{patientId}", "/patients/{patientId}/analyses"})
     @Operation(
             summary = "Get all medical analyses for a patient",
             description = "Retrieve all medical analysis records for a specific patient, ordered by analysis date (most recent first)"
